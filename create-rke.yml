@@ -1,0 +1,36 @@
+-
+- name: new k8s leader
+  hosts: new_rke[0]
+  remote_user: root
+  tasks:
+  - name: copy rke
+    copy:
+      src: /bin/rke
+      dest: /bin/
+
+  - name: create rke dir
+    file:
+      path: /root/rke-cluster
+      state: directory
+
+  - name: change dir
+    shell: cd /root/rke-cluster
+
+  - name: create rke cluster file
+    template:
+      src: /templates/create-rke-cluster.jinja2
+      dest: /root/rke-cluster/rancher-cluster.yml
+
+  - name: add permissions
+    shell: chmod +x /bin/rke
+
+  - name: start cluster
+    shell: rke up --config /root/rkeluster/rancherluster.yml
+
+  - name: create kubernetes dir
+    file:
+      path: ~/.kube
+      state: directory
+
+  - name: copy kubernetes components
+    shell: cp /root/rkeluster/kube_config_rancherluster.yml ~/.kube/config

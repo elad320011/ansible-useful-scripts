@@ -1,0 +1,69 @@
+-
+- name: new k8s servers
+  hosts: new_rke
+  remote_user: root
+
+  tasks:
+  - name: move certs
+    copy:
+          src: /certs
+          dest: /
+
+  - name: get docker
+    apt:
+      pkg:
+        - docker
+        - docker.io
+
+  - name: move more certs
+    copy:
+          src: /etc/docker/certs.d
+          dest: /etc/docker/
+  
+  - name: add kubectl
+    copy:
+          src: /root/kubectl_1.24.2_amd64.deb
+          dest: /root/kubectl_1.24.2_amd64.deb
+    
+  - name: install kubectl
+    shell:
+          apt install /root/kubectl_1.24.2_amd64.deb
+    
+  - name: delete deb file
+    file:
+          path: /root/kubectl_1.24.2_amd64.deb
+          state: absent
+
+  - name: get helm
+    copy:
+          src: /bin/helm
+          dest: /bin/
+    
+  - name: add permission
+    shell:
+          chmod +x /bin/helm
+  
+  - name: restart docker
+    shell:
+          systemctl restart docker
+  
+  - name: copy rke
+    copy:
+      src: /bin/rke
+      dest: /bin/
+
+  - name: create rke dir
+    file:
+      path: /root/rke-cluster
+      state: directory
+
+  - name: change dir
+    shell: cd /root/rke-cluster
+
+  - name: create rke cluster file
+    template:
+      src: /templates/createkeluster.jinja2
+      dest: /root/rkeluster/rancherluster.yml
+
+
+

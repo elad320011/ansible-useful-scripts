@@ -1,0 +1,13 @@
+nodes:
+{% for host in groups['new_rke'] %}
+  - address: {{  host  }}
+    internal_address: {{  host  }}
+    user: root
+    role: [controlplane, worker, etcd]
+    ssh_key_path: /root/.ssh/id_rsa
+{% endfor %}
+private_registries:
+  - url: artifactory.prod.domain_name.domain_name.domain_name/dockermages
+    user: <repo-user>
+    password: <repo-api-key>
+    is_default: true
